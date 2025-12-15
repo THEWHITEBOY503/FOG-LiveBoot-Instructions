@@ -310,7 +310,7 @@ Refresh and reload.
 sudo exportfs -ra
 sudo systemctl restart nfs-kernel-server
 ```
-[Add your FOG menu option.](https://github.com/THEWHITEBOY503/FOG-LiveBoot-Instructions/main/README.md#nfs-boot-fog-options)
+[Add your FOG menu option.](https://github.com/THEWHITEBOY503/FOG-LiveBoot-Instructions/blob/main/README.md#nfs-boot-fog-options)
 At this point, NFS booting should be ready to go. Make sure your path is published, and netboot a device from your FOG server to test!
 
 ## RAM Boot setup
@@ -409,7 +409,7 @@ sudo qemu-nbd --disconnect /dev/nbd0
 echo "--- DONE: RAM Image is ready at $OUTPUT_DIR ---"
 ```
 
-Add your [RAM boot FOG menu entry](https://github.com/THEWHITEBOY503/FOG-LiveBoot-Instructions/main/README.md#ram-boot-fog-options) and test.
+Add your [RAM boot FOG menu entry](https://github.com/THEWHITEBOY503/FOG-LiveBoot-Instructions/blob/main/README.md#ram-boot-fog-options) and test.
 
 ## Adding FOG menu options
 
