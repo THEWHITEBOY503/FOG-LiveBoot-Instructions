@@ -191,83 +191,25 @@ Shut down your VM.
 
 ### server-control script
 
-The following is the content of the script we will use to bring our server up/down. You can also download this as a file from this repository. 
-
-Open up your favorite text editor and give your script a good home. (Eg. `nano ~/server-control.sh`) Paste this in:
-
+`server-control.sh` is a script used for bringing the server online/offline, and compressing RAM disk images. You can download it on your computer by running:
 ```bash
-#!/bin/bash
-
-# CONFIG
-VM_DOMAIN="ubuntu24.04-NFS" # Put the name of your VM here. This is for the VM running check
-NBD_DEV="/dev/nbd0"
-NFS_MOUNT="/var/www/html/os/kubuntu" # Change this to your NFS mount point if needed
-RAM_DIR="/var/www/html/os/kubuntu-ram" # Change this to your RAM boot mount point if needed 
-
-function set_production() {
-    echo "--- SWITCHING TO PRODUCTION MODE ---"
-    # 1. Ensure VM is off
-    if sudo virsh list --name --state-running | grep -q "^$VM_DOMAIN$"; then
-        echo "Error: VM is still running. Shut it down first."
-        exit 1
-    fi
-
-    # 2. Connect NBD and Mount NFS
-    echo "Connecting VM disk for NFS..."
-    sudo modprobe nbd max_part=16
-    # Added --persistent to prevent timeouts and -f qcow2 to be explicit
-    sudo qemu-nbd --connect=$NBD_DEV --persistent -f qcow2 /var/lib/libvirt/images/ubuntu24.04-NFS.qcow2
-    sleep 2
-    sudo mount ${NBD_DEV}p1 $NFS_MOUNT
-    
-    # 3. Refresh Exports
-    sudo exportfs -r
-    
-    echo "Done. NFS and RAM services are BOTH ACTIVE."
-}
-
-function set_maintenance() {
-    echo "--- SWITCHING TO MAINTENANCE MODE ---"
-    # 1. Unmount NFS
-    sudo umount $NFS_MOUNT 2>/dev/null
-    
-    # 2. Disconnect Disk
-    sudo qemu-nbd --disconnect $NBD_DEV 2>/dev/null
-    
-    echo "Done. NFS is offline. RAM boot is still online."
-    echo "You may now start your VM to make changes."
-}
-
-# Simple Menu
-PS3='Please enter your choice: '
-options=("Enable Production (Serve Clients)" "Enable Maintenance (Edit VM)" "Quit")
-select opt in "${options[@]}"
-do
-    case $opt in
-        "Enable Production (Serve Clients)")
-            set_production
-            break
-            ;;
-        "Enable Maintenance (Edit VM)")
-            set_maintenance
-            break
-            ;;
-        "Quit")
-            break
-            ;;
-        *) echo "invalid option $REPLY";;
-    esac
-done
+wget https://raw.githubusercontent.com/THEWHITEBOY503/FOG-LiveBoot-Instructions/refs/heads/main/server-control.sh
 ```
-
-Save and exit (Ctrl-X in nano). 
-
 Grant it executable permission: 
 
 ```bash
 chmod +x server-control.sh
 ```
 
+Tweak the config values before your first run. Open `server-control.sh` with your favorite text editor (eg. `nano server-control.sh`) and adjust these lines at the top:
+```bash
+VM_DOMAIN="YOUR_VM_NAME" # Whatever the name of the VM is in virt-manager, if applicable. This is for the running check.
+NBD_DEV="/dev/nbd0"  # Leave this unless you have something occupying it already
+NFS_MOUNT="/var/www/html/os/kubuntu" # Default value is fine, or if you want you can change the 'kubuntu' part of the path
+RAM_DIR="/var/www/html/os/kubuntu-ram" # Default value is fine, or if you want you can change the 'kubuntu-ram' part of the path
+IMAGE_PATH="/var/lib/libvirt/images/example.qcow2" # CHANGE this to the path of your golden VM's hard drive image.
+PARTITION="1" # From your lsblk in your golden VM. Change this number if needed.
+```
 Make sure it runs:
 
 ```bash
@@ -347,67 +289,7 @@ Sync the exports:
 sudo exportfs -ra
 ```
 
-Open your favorite text editor. (Eg. `nano ~/create-ram-image.sh`)
-
-Paste this in. This is also available as a file in this repository. 
-
-```bash
-#!/bin/bash
-# CONFIG
-VM_IMAGE="/var/lib/libvirt/images/kubuntu.qcow2"  # Check your path!
-MOUNT_POINT="/mnt" # Should work unless you have something else there. If you plan to, make this somewhere else.
-OUTPUT_DIR="/var/www/html/os/kubuntu-ram" # Check this path as well
-
-echo "--- Starting RAM Image Builder ---"
-
-# 1. Ensure clean slate
-sudo umount $MOUNT_POINT 2>/dev/null
-sudo qemu-nbd --disconnect /dev/nbd0 2>/dev/null
-sudo mkdir -p $OUTPUT_DIR
-
-# 2. Mount the VM Disk
-echo "Mounting VM Source..."
-sudo modprobe nbd max_part=16
-sudo qemu-nbd --connect=/dev/nbd0 $VM_IMAGE
-sleep 2
-# adjust partition number (p2) if needed based on your earlier lsblk
-sudo mount /dev/nbd0p1 $MOUNT_POINT 
-
-# 3. Copy Boot Files (Kernel needs to match the squashfs)
-echo "Copying Kernel and Initrd..."
-# Using the same logic as your publish script to handle symlinks
-if [ -f "$MOUNT_POINT/boot/vmlinuz" ]; then
-    sudo cp -L $MOUNT_POINT/boot/vmlinuz $OUTPUT_DIR/vmlinuz
-    sudo cp -L $MOUNT_POINT/boot/initrd.img $OUTPUT_DIR/initrd.img
-else
-    sudo cp $MOUNT_POINT/boot/vmlinuz* $OUTPUT_DIR/vmlinuz
-    sudo cp $MOUNT_POINT/boot/initrd.img* $OUTPUT_DIR/initrd.img
-fi
-# Fix permissions so HTTP can read them
-sudo chmod 644 $OUTPUT_DIR/vmlinuz $OUTPUT_DIR/initrd.img
-
-# 4. THE BIG SQUEEZE (Compression)
-# 4. THE BIG SQUEEZE (Compression)
-echo "Compressing filesystem... (This will take time)"
-
-# Create the casper directory if missing
-sudo mkdir -p $OUTPUT_DIR/casper
-
-# Remove old file (Target the CASPER folder)
-sudo rm -f $OUTPUT_DIR/casper/filesystem.squashfs
-
-# Compress into the /casper/ folder
-sudo mksquashfs $MOUNT_POINT $OUTPUT_DIR/casper/filesystem.squashfs -comp gzip -wildcards -e 'swapfile' 'var/cache/apt/archives/*' 'tmp/*'
-
-# 5. Fix Permissions
-sudo chmod 644 $OUTPUT_DIR/casper/filesystem.squashfs
-# 6. Cleanup
-sudo umount $MOUNT_POINT
-sudo qemu-nbd --disconnect /dev/nbd0
-
-echo "--- DONE: RAM Image is ready at $OUTPUT_DIR ---"
-```
-
+Run `server-control.sh` and publish, then answer Y to if you want to build a RAM disk.
 Add your [RAM boot FOG menu entry](https://github.com/THEWHITEBOY503/FOG-LiveBoot-Instructions/blob/main/README.md#ram-boot-fog-options) and test.
 
 ## Adding FOG menu options
