@@ -6,6 +6,7 @@ NBD_DEV="/dev/nbd0"  # Leave this unless you have something occupying it already
 NFS_MOUNT="/var/www/html/os/kubuntu" # Default value is fine, or if you want you can change the 'kubuntu' part of the path
 RAM_DIR="/var/www/html/os/kubuntu-ram" # Default value is fine, or if you want you can change the 'kubuntu-ram' part of the path
 IMAGE_PATH="/var/lib/libvirt/images/example.qcow2" # CHANGE this to the path of your golden VM's hard drive image.
+PARTITION="1" # From your lsblk in your golden VM. Change this number if needed.
 
 function check_and_create_dirs() {
     echo "--- CHECKING DIRECTORIES ---"
@@ -44,7 +45,7 @@ function mount_VM() {
 
     sudo qemu-nbd --connect=$NBD_DEV --persistent -f qcow2 "${IMAGE_PATH}"
     sleep 2
-    sudo mount "${NBD_DEV}p1" "$NFS_MOUNT"
+    sudo mount "${NBD_DEV}p${PARTITION}" "$NFS_MOUNT"
     sleep 2
 }
 
