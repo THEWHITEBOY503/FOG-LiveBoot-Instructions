@@ -74,9 +74,15 @@ function set_maintenance() {
     echo "You may now start your VM to make changes."
 }
 
+function force_unmount() {
+    echo "--- FORCE UNMOUNTING... ---"
+    sudo umount -l $NFS_MOUNT
+    sudo qemu-nbd --disconnect $NBD_DEV
+}
+
 # Simple Menu
 PS3='Please enter your choice: '
-options=("Enable Production (Serve Clients)" "Enable Maintenance (Edit VM)" "Quit")
+options=("Enable Production (Serve Clients)" "Enable Maintenance (Edit VM)" "Force Unmount (Jaws of Life)" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -86,6 +92,10 @@ do
             ;;
         "Enable Maintenance (Edit VM)")
             set_maintenance
+            break
+            ;;
+        "Force Unmount (Jaws of Life)")
+            force_unmount
             break
             ;;
         "Quit")
