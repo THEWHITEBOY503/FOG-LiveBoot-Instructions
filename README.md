@@ -138,8 +138,7 @@ First you must install QEMU and virt-manager, which facilitates virtual machines
 
 In order for this to work, your machine **needs to have hardware virtualization enabled.** This is usually called *Intel VT-x* on Intel machines, and *AMD-V* on AMD machines. In VMWare ESXi, the setting you need to enable is “Expose hardware assisted virtualization” under the CPU tab of your VM’s settings. 
 
-Once 
-
+Installing QEMU:
 ```bash
 # Install virtual machine stuff
 sudo apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager qemu-utils
