@@ -39,7 +39,7 @@ It is **highly recommended** to set up a static IP address on your server so tha
 
 ### Installing FOG
 
-First, set up your target server. **This guide assumes a Debian/Ubuntu-based distro.** 
+First, set up your target server. **This guide assumes a Debian/Ubuntu-based distro.** A desktop version of Linux is recommeneded for ease of use working with the virtual machines, but if you are comfortable with QEMU, you could theoritcally opt for a headless install. 
 
 Once your machine is set up, we can begin installing stuff. Open up a terminal and follow these commands. (I recommend using SSH so copy-pasting commands will be easier)
 
