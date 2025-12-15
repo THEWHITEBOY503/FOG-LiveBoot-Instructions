@@ -36,6 +36,8 @@ function set_production() {
         exit 1
     fi
 
+    check_and_create_dirs
+
     # 2. Connect NBD and Mount NFS
     echo "Connecting VM disk for NFS..."
     sudo modprobe nbd max_part=16
