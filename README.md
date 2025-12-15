@@ -299,7 +299,7 @@ To be documented.
 
 Refer back to this section to add the different boot entries.
 
-Open the boot menu by opening the FOG management interface (http://<YOUR-SERVER-IP>/fog/management/), then navigating to FOG Configuration (Wrench icon)→ iPXE New Menu Entry. To modify existing entries, select iPXE Menu Item Settings instead. 
+Open the boot menu by opening the FOG management interface (http://YOUR-SERVER-IP/fog/management/), then navigating to FOG Configuration (Wrench icon)→ iPXE New Menu Entry. To modify existing entries, select iPXE Menu Item Settings instead. 
 
 Fill this out: 
 
