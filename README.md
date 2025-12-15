@@ -292,6 +292,9 @@ sudo exportfs -ra
 Run `server-control.sh` and publish, then answer Y to if you want to build a RAM disk.
 Add your [RAM boot FOG menu entry](https://github.com/THEWHITEBOY503/FOG-LiveBoot-Instructions/blob/main/README.md#ram-boot-fog-options) and test.
 
+## ISO over network Setup
+To be documented. 
+
 ## Adding FOG menu options
 
 Refer back to this section to add the different boot entries.
