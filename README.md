@@ -137,6 +137,7 @@ sudo systemctl enable dnsmasq
 First you must install QEMU and virt-manager, which facilitates virtual machines. 
 
 In order for this to work, your machine **needs to have hardware virtualization enabled.** This is usually called *Intel VT-x* on Intel machines, and *AMD-V* on AMD machines. In VMWare ESXi, the setting you need to enable is “Expose hardware assisted virtualization” under the CPU tab of your VM’s settings. 
+If your machine does not support hardware virtualization, you can do all the QEMU stuff in a separate machine, then copy the qcow2 file.
 
 Installing QEMU:
 ```bash
